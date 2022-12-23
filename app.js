@@ -11,6 +11,7 @@ let lines = []
 let linesObjArr = []
 let random = Math.floor(Math.random() * 30)
 let newArray
+let readArray
 
 const readFile = async (req, res, next) =>{
     const fileContent =  fs.readFileSync('insults.txt', {encoding: 'utf8'})
@@ -36,6 +37,32 @@ const readFile = async (req, res, next) =>{
     next()
 }
 
+const linesId = async (req, res, next) => {
+    const fileContent =  fs.readFileSync('insults.txt', {encoding: 'utf8'})
+    lines = fileContent.split("\n")
+
+    console.log("Alex was here")
+
+    //Usin for in loop bc I need the position of line for its id property
+    for(let line in lines){
+            let lineObj = {}
+            //let numId = 0
+            lineObj['insult'] = lines[line]
+            lineObj['id'] = line
+
+            linesObjArr.push(lineObj)
+
+    }
+        newArray = linesObjArr.filter(function(line) {
+        return line.insult.length > 10})
+
+    for(let el of newArray){
+        console.log("New array is: " + el.insult + " Severity: " + el.severity)
+    }
+    
+    next()
+}
+
 app.get("/insults", (req, res) => {
     res.render('insults')
 })
@@ -47,6 +74,13 @@ app.post("/insults", (req, res) => {
     let data = "\n\n" + req.body.insult
     fs.appendFileSync('insults.txt', data)
     res.redirect("/")
+})
+
+app.get("/insults/:id", linesId, (req, res) => {
+    //lines[id] = req.params.id
+    const insult = newArray.find((element) => element.id == req.params.id)
+    res.send(insult)
+    console.log(insult)
 })
 
 app.get("/", readFile, (req, res) => {
