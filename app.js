@@ -77,10 +77,28 @@ app.post("/insults", (req, res) => {
 })
 
 app.get("/insults/:id", linesId, (req, res) => {
-    //lines[id] = req.params.id
     const insult = newArray.find((element) => element.id == req.params.id)
-    res.send(insult)
+    res.render("insultId", {insult:insult.insult})
     console.log(insult)
+})
+
+
+app.post("/insults/:id", linesId, (req, res) => {
+    const insult = newArray.find((element) => element.id == req.params.id)
+
+    //This should be written as a function by its own
+    //Not working yet
+    const fileContent = fs.readFileSync("insults.txt", 
+        {encoding: 'utf8'}
+    )
+
+    const lines = fileContent.split("\n")
+    lines[req.params.id].insult = req.body.insult
+
+    const newFileContent = lines.join("\n")
+    fs.writeFileSync("insults.txt", newFileContent)
+
+    res.render("insultId", {insult: insult.insult})
 })
 
 app.get("/", readFile, (req, res) => {
